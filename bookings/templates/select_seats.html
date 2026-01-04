@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Seats | ONNLY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --primary: #0f172a; --accent: #2563eb; --gold: #d97706; --light: #f8fafc; --seat-avail: #e2e8f0; --seat-taken: #94a3b8; --seat-selected: #2563eb; }
+        body { font-family: "Inter", sans-serif; background: var(--light); margin: 0; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        .top-nav { background: white; padding: 15px 20px; display: flex; justify-content: space-between; box-shadow: 0 1px 10px rgba(0,0,0,0.05); }
+        .nav-title h1 { margin: 0; font-size: 1rem; color: var(--primary); }
+        .nav-title p { margin: 0; font-size: 0.8rem; color: #64748b; }
+        .close-btn { color: var(--primary); font-size: 1.2rem; }
+
+        .coach-bar { background: white; padding: 10px 20px; display: flex; gap: 15px; overflow-x: auto; border-bottom: 1px solid #e2e8f0; scrollbar-width: none; }
+        .coach-bar::-webkit-scrollbar { display: none; }
+        .coach-tab { padding: 8px 16px; border-radius: 20px; background: #f1f5f9; color: #64748b; font-size: 0.85rem; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s; }
+        .coach-tab.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(15,23,42,0.2); }
+
+        .train-viewport { flex: 1; overflow-y: auto; padding: 30px 20px 120px; display: flex; flex-direction: column; align-items: center; }
+        .train-body { background: white; width: 100%; max-width: 360px; border-radius: 40px; padding: 40px 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.1); position: relative; border: 1px solid #e2e8f0; }
+        .train-nose { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); background: #cbd5e1; width: 60px; height: 30px; border-radius: 10px 10px 0 0; display: flex; align-items: center; justify-content: center; font-size: 0.6rem; color: white; font-weight: 800; letter-spacing: 1px; }
+
+        .seat-grid { display: grid; grid-template-columns: repeat(2, 1fr) 30px repeat(2, 1fr); gap: 12px 10px; justify-items: center; }
+        .seat { width: 42px; height: 42px; background: var(--seat-avail); border-radius: 8px; position: relative; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; color: #64748b; }
+        .seat::before { content: ""; position: absolute; bottom: -4px; width: 80%; height: 6px; background: rgba(0,0,0,0.1); border-radius: 4px; }
+        .seat:hover { transform: scale(1.1); }
+        .seat.selected { background: var(--seat-selected); color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .seat.taken { background: var(--seat-taken); color: rgba(255,255,255,0.5); cursor: not-allowed; pointer-events: none; }
+        .aisle-marker { display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #cbd5e1; font-weight: 600; }
+
+        .checkout-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 20px; border-top: 1px solid #e2e8f0; z-index: 100; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 -10px 30px rgba(0,0,0,0.05); }
+        .price-display h3 { margin: 0; color: var(--primary); font-size: 1.2rem; }
+        .price-display span { font-size: 0.8rem; color: #64748b; }
+        .btn-next { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 12px; font-weight: 600; font-size: 1rem; display: flex; align-items: center; gap: 8px; cursor: pointer; transition: 0.2s; opacity: 0.5; pointer-events: none; }
+        .btn-next.active { opacity: 1; pointer-events: auto; background: var(--accent); }
+    </style>
+</head>
+<body>
+    <div class="top-nav">
+        <div class="nav-title">
+            <h1>{{ train.train_name }}</h1>
+            <p>{{ src }} <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i> {{ dest }}</p>
+        </div>
+        <a href="/" class="close-btn"><i class="fas fa-times"></i></a>
+    </div>
+
+    <div class="coach-bar">
+        <div class="coach-tab active" onclick="switchCoach('A')">Coach A</div>
+        <div class="coach-tab" onclick="switchCoach('B')">Coach B</div>
+        <div class="coach-tab" onclick="switchCoach('C')">Coach C</div>
+        <div class="coach-tab" onclick="switchCoach('D')">Coach D</div>
+        <div class="coach-tab" onclick="switchCoach('E')">First Class</div>
+    </div>
+
+    <div class="train-viewport">
+        <div class="train-body">
+            <div class="train-nose">FRONT</div>
+            <div class="seat-grid" id="seat-map"></div>
+        </div>
+    </div>
+
+    <div class="checkout-bar">
+        <div class="price-display">
+            <span id="seat-counter">0 seats</span>
+            <h3 id="total-price">KES 0</h3>
+        </div>
+        <form action="{% url 'book_ticket' train.id %}" method="get">
+            <input type="hidden" name="src" value="{{ src }}" />
+            <input type="hidden" name="dest" value="{{ dest }}" />
+            <input type="hidden" id="final-seats" name="selected_seats" />
+            <button type="submit" id="btn-continue" class="btn-next">Continue <i class="fas fa-chevron-right"></i></button>
+        </form>
+    </div>
+
+    <script>
+        const TAKEN_SEATS = {{ taken_seats_json|safe }}; 
+        const TOTAL_ROWS = {{ total_rows }}; 
+        const PRICE_ECO = {{ economy_price }};
+        const PRICE_FIRST = {{ first_price }};
+
+        let currentCoach = 'A';
+        let currentPrice = PRICE_ECO;
+        let selectedSeats = [];
+
+        document.addEventListener('DOMContentLoaded', () => { renderSeats('A'); });
+
+        function switchCoach(coachLetter) {
+            currentCoach = coachLetter;
+            document.querySelectorAll('.coach-tab').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (coachLetter === 'E') { 
+                currentPrice = PRICE_FIRST;
+                document.documentElement.style.setProperty('--seat-selected', '#d97706'); 
+            } else {
+                currentPrice = PRICE_ECO;
+                document.documentElement.style.setProperty('--seat-selected', '#2563eb'); 
+            }
+            selectedSeats = [];
+            updateCheckout();
+            renderSeats(coachLetter);
+        }
+
+        function renderSeats(coach) {
+            const grid = document.getElementById('seat-map');
+            grid.innerHTML = ''; 
+
+            for (let row = 1; row <= TOTAL_ROWS; row++) {
+                createSeat(grid, row, 'A');
+                createSeat(grid, row, 'B');
+                const aisle = document.createElement('div');
+                aisle.className = 'aisle-marker';
+                aisle.innerText = row;
+                grid.appendChild(aisle);
+                createSeat(grid, row, 'C');
+                createSeat(grid, row, 'D');
+            }
+        }
+
+        function createSeat(container, row, col) {
+            // FIX: ID now includes Coach Letter (e.g., "A-1A")
+            const seatId = `${currentCoach}-${row}${col}`;
+            
+            const seatDiv = document.createElement('div');
+            seatDiv.className = 'seat';
+            seatDiv.innerText = `${row}${col}`;
+
+            if (TAKEN_SEATS.includes(seatId)) {
+                seatDiv.classList.add('taken');
+            } else if (selectedSeats.includes(seatId)) {
+                seatDiv.classList.add('selected');
+                seatDiv.onclick = () => toggleSeat(seatDiv, seatId);
+            } else {
+                seatDiv.onclick = () => toggleSeat(seatDiv, seatId);
+            }
+            container.appendChild(seatDiv);
+        }
+
+        function toggleSeat(el, id) {
+            if (selectedSeats.includes(id)) {
+                selectedSeats = selectedSeats.filter(s => s !== id);
+                el.classList.remove('selected');
+            } else {
+                if (selectedSeats.length >= 5) { alert("Max 5 seats."); return; }
+                selectedSeats.push(id);
+                el.classList.add('selected');
+            }
+            updateCheckout();
+        }
+
+        function updateCheckout() {
+            const count = selectedSeats.length;
+            const total = count * currentPrice;
+            document.getElementById('seat-counter').innerText = count + (count === 1 ? " seat" : " seats");
+            document.getElementById('total-price').innerText = "KES " + total;
+            document.getElementById('final-seats').value = selectedSeats.join(',');
+            
+            const btn = document.getElementById('btn-continue');
+            if(count > 0) { btn.classList.add('active'); } 
+            else { btn.classList.remove('active'); }
+        }
+    </script>
+</body>
+</html>

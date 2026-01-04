@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Dashboard | ONNLY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: #f8fafc; margin: 0; display: flex; height: 100vh; color: #1e293b; }
+        
+        /* SIDEBAR (Dark Mode Style) */
+        .sidebar { width: 260px; background: #0f172a; color: white; padding: 30px; display: flex; flex-direction: column; }
+        .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 50px; text-decoration: none; color: white; }
+        .logo span { color: #d97706; }
+        
+        .menu a {
+            display: flex; align-items: center; gap: 15px; padding: 15px;
+            color: #94a3b8; text-decoration: none; border-radius: 12px; margin-bottom: 5px; font-weight: 500; transition: 0.2s;
+        }
+        .menu a:hover, .menu a.active { background: rgba(255,255,255,0.1); color: white; }
+        
+        /* CONTENT */
+        .content { flex: 1; padding: 50px; overflow-y: auto; }
+        .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 40px; }
+        .header h1 { margin: 0; font-size: 2rem; }
+        .header p { margin: 5px 0 0; color: #64748b; }
+        .new-trip-btn { background: #0f172a; color: white; padding: 12px 25px; border-radius: 8px; text-decoration: none; font-weight: 600; }
+
+        /* WALLET CARDS */
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
+        
+        .trip-card {
+            background: white; border-radius: 20px; overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02); border: 1px solid #f1f5f9;
+            transition: 0.3s; position: relative;
+        }
+        .trip-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+        
+        .card-header { background: linear-gradient(135deg, #0f172a, #1e293b); padding: 20px; color: white; }
+        .trip-route { font-size: 1.1rem; font-weight: 700; margin-bottom: 5px; }
+        .trip-date { opacity: 0.8; font-size: 0.9rem; }
+        
+        .card-body { padding: 20px; }
+        .info-row { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.9rem; color: #475569; }
+        .info-val { font-weight: 600; color: #0f172a; }
+        
+        .status-badge {
+            position: absolute; top: 20px; right: 20px;
+            background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px;
+            font-size: 0.7rem; font-weight: 700; color: #4ade80; border: 1px solid #4ade80;
+        }
+
+        .action-row { padding: 0 20px 20px; display: flex; gap: 10px; }
+        .btn-outline { flex: 1; text-align: center; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; text-decoration: none; color: #64748b; font-size: 0.85rem; font-weight: 600; transition: 0.2s; }
+        .btn-outline:hover { background: #f8fafc; color: #0f172a; border-color: #cbd5e1; }
+        .btn-danger { color: #ef4444; border-color: #fecaca; }
+        .btn-danger:hover { background: #fef2f2; }
+
+        /* Empty State */
+        .empty { text-align: center; color: #94a3b8; margin-top: 50px; }
+        
+        @media (max-width: 800px) {
+            body { flex-direction: column; }
+            .sidebar { width: 100%; padding: 20px; box-sizing: border-box; flex-direction: row; justify-content: space-between; align-items: center; }
+            .logo { margin: 0; }
+            .menu-text { display: none; }
+            .content { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <a href="/" class="logo">ONNLY<span>RAILWAYS</span></a>
+        <div class="menu">
+            <a href="#" class="active"><i class="fas fa-wallet"></i> <span class="menu-text">My Trips</span></a>
+            <a href="#"><i class="fas fa-user"></i> <span class="menu-text">Profile</span></a>
+            <a href="#"><i class="fas fa-cog"></i> <span class="menu-text">Settings</span></a>
+            <a href="/"><i class="fas fa-arrow-left"></i> <span class="menu-text">Back to Home</span></a>
+        </div>
+    </div>
+
+    <div class="content">
+        <div class="header">
+            <div>
+                <h1>Hello, {{ user.username }}</h1>
+                <p>Your upcoming journeys.</p>
+            </div>
+            <a href="/" class="new-trip-btn">+ New Trip</a>
+        </div>
+
+        {% if tickets %}
+        <div class="grid">
+            {% for ticket in tickets %}
+            <div class="trip-card">
+                <div class="card-header">
+                    <div class="status-badge">CONFIRMED</div>
+                    <div class="trip-route">{{ ticket.source }} <i class="fas fa-arrow-right" style="font-size:0.8rem; opacity:0.7;"></i> {{ ticket.destination }}</div>
+                    <div class="trip-date"><i class="fas fa-calendar"></i> {{ ticket.date_of_journey }}</div>
+                </div>
+                <div class="card-body">
+                    <div class="info-row">
+                        <span>Train</span>
+                        <span class="info-val">{{ ticket.train.train_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span>Seat</span>
+                        <span class="info-val">#{{ ticket.seat_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span>PNR</span>
+                        <span class="info-val">829{{ ticket.id }}</span>
+                    </div>
+                </div>
+                <div class="action-row">
+                    <a href="#" class="btn-outline"><i class="fas fa-download"></i> Ticket</a>
+                    
+                    <a href="{% url 'cancel_ticket' ticket.id %}" onclick="return confirm('Cancel this?')" class="btn-outline btn-danger">Cancel</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <div class="empty">
+                <i class="fas fa-plane-slash" style="font-size: 3rem; margin-bottom: 20px; opacity: 0.3;"></i>
+                <p>You haven't booked any trips yet.</p>
+            </div>
+        {% endif %}
+    </div>
+
+</body>
+</html>

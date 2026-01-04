@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ONNLY-RAILWAYS | First Class</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #0f172a; /* Deep Navy (Airline Style) */
+            --accent: #d97706;  /* Gold/Amber */
+            --glass: rgba(255, 255, 255, 0.95);
+            --text: #334155;
+            --light: #f1f5f9;
+        }
+
+        body { font-family: 'Inter', sans-serif; margin: 0; background: var(--light); color: var(--text); }
+
+        /* --- 1. PRO NAVBAR --- */
+        .navbar {
+            position: absolute; top: 0; width: 100%; z-index: 1000;
+            padding: 20px 5%; box-sizing: border-box;
+            display: flex; justify-content: space-between; align-items: center;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+        }
+        .brand { font-weight: 900; font-size: 1.5rem; color: white; text-decoration: none; letter-spacing: -1px; }
+        .brand span { color: var(--accent); }
+        
+        .nav-links { display: flex; gap: 20px; align-items: center; }
+        .nav-item { color: rgba(255,255,255,0.8); text-decoration: none; font-weight: 500; font-size: 0.9rem; transition: 0.3s; }
+        .nav-item:hover { color: white; }
+        .nav-btn { background: rgba(255,255,255,0.15); padding: 8px 16px; border-radius: 30px; backdrop-filter: blur(5px); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .nav-btn:hover { background: white; color: var(--primary); }
+
+        /* --- 2. CINEMATIC HERO --- */
+        .hero {
+            height: 85vh; width: 100%; position: relative;
+            background: url('https://images.unsplash.com/photo-1555529733-0e670560f7e1?q=80&w=2574&auto=format&fit=crop') no-repeat center center/cover;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.6) 100%);
+        }
+        
+        .hero-content { position: relative; z-index: 10; text-align: center; width: 100%; max-width: 1100px; padding: 0 20px; }
+        .hero-title { font-size: 3.5rem; color: white; margin: 0 0 10px; font-weight: 800; text-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .hero-sub { color: rgba(255,255,255,0.9); font-size: 1.2rem; margin-bottom: 50px; font-weight: 300; }
+
+        /* --- 3. THE "FLIGHT STYLE" SEARCH BAR --- */
+        .search-engine {
+            background: var(--glass); padding: 10px; border-radius: 100px;
+            display: flex; align-items: center; box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px); width: 100%; max-width: 950px; margin: 0 auto;
+        }
+
+        /* The Segments */
+        .search-segment {
+            flex: 1; padding: 10px 25px; border-right: 1px solid #e2e8f0; position: relative;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+        .search-segment:last-of-type { border-right: none; }
+        
+        .segment-label { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #64748b; letter-spacing: 1px; margin-bottom: 5px; }
+        
+        /* The Inputs (Hidden borders, big text) */
+        .segment-input {
+            width: 100%; border: none; background: transparent; font-family: 'Inter', sans-serif;
+            font-size: 1.1rem; font-weight: 600; color: var(--primary); padding: 0; cursor: pointer; outline: none; appearance: none;
+        }
+        
+        .swap-icon {
+            background: #f1f5f9; width: 35px; height: 35px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; color: var(--primary);
+            cursor: pointer; position: absolute; right: -17px; top: 50%; transform: translateY(-50%); z-index: 10;
+            border: 2px solid white; transition: 0.3s;
+        }
+        .swap-icon:hover { transform: translateY(-50%) rotate(180deg); background: var(--accent); color: white; }
+
+        .search-btn {
+            background: var(--primary); color: white; border: none;
+            width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer; transition: 0.3s; margin-left: 10px;
+        }
+        .search-btn:hover { background: var(--accent); transform: scale(1.05); }
+
+        /* --- 4. RESULTS SECTION --- */
+        .results-area { max-width: 900px; margin: -50px auto 50px; position: relative; z-index: 20; padding: 0 20px; }
+        .ticket-card {
+            background: white; border-radius: 16px; padding: 0; display: flex; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); margin-bottom: 20px; transition: 0.3s;
+        }
+        .ticket-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.12); }
+        
+        .ticket-left { padding: 25px; flex: 1; border-right: 2px dashed #f1f5f9; position: relative; }
+        /* The "Cutout" circles for ticket effect */
+        .ticket-left::after { content: ''; position: absolute; top: -10px; right: -10px; width: 20px; height: 20px; background: var(--light); border-radius: 50%; }
+        .ticket-left::before { content: ''; position: absolute; bottom: -10px; right: -10px; width: 20px; height: 20px; background: var(--light); border-radius: 50%; }
+
+        .time-row { display: flex; align-items: center; gap: 15px; font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        .duration { font-size: 0.8rem; color: #64748b; font-weight: 400; background: #f1f5f9; padding: 2px 8px; border-radius: 10px; }
+        
+        .route-row { display: flex; align-items: center; gap: 10px; color: #64748b; font-size: 0.9rem; }
+        
+        .ticket-right { padding: 25px; width: 180px; display: flex; flex-direction: column; justify-content: center; align-items: flex-end; background: #fafafa; }
+        .price-tag { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
+        .seat-tag { font-size: 0.8rem; color: #64748b; margin-bottom: 10px; }
+        .book-btn { text-decoration: none; background: var(--primary); color: white; padding: 10px 25px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; transition: 0.2s; }
+        .book-btn:hover { background: var(--accent); }
+
+        /* --- 5. FOOTER (Simple) --- */
+        .footer { background: var(--primary); color: white; padding: 40px; text-align: center; margin-top: 50px; }
+
+        @media (max-width: 800px) {
+            .hero-title { font-size: 2.2rem; }
+            .search-engine { flex-direction: column; border-radius: 20px; padding: 20px; background: white; }
+            .search-segment { width: 100%; border-right: none; border-bottom: 1px solid #e2e8f0; padding: 15px 0; }
+            .search-btn { width: 100%; border-radius: 12px; margin: 15px 0 0; }
+            .ticket-card { flex-direction: column; }
+            .ticket-left { border-right: none; border-bottom: 2px dashed #f1f5f9; }
+            .ticket-right { width: 100%; align-items: center; background: white; box-sizing: border-box; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar">
+        <a href="/" class="brand">ONNLY<span>RAILWAYS</span></a>
+        
+        <div class="nav-links">
+            {% if user.is_staff %}
+                <div style="border-right: 1px solid rgba(255,255,255,0.3); padding-right: 15px; display: flex; gap: 15px;">
+                    <a href="/admin" class="nav-item" style="color: #fca5a5;">
+                        <i class="fas fa-database"></i> System
+                    </a>
+                    <a href="{% url 'analytics' %}" class="nav-item" style="color: #fca5a5;">
+                        <i class="fas fa-chart-line"></i> Analytics
+                    </a>
+                </div>
+            {% endif %}
+
+            {% if user.is_authenticated %}
+                <a href="{% url 'dashboard' %}" class="nav-item">My Trips</a>
+                
+                <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                    {% csrf_token %}
+                    <button class="nav-btn">Log Out</button>
+                </form>
+            {% else %}
+                <a href="{% url 'login' %}" class="nav-item">Log In</a>
+                <a href="{% url 'signup' %}" class="nav-btn">Sign Up</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <h1 class="hero-title">Elevate Your Journey.</h1>
+            <p class="hero-sub">Experience the future of rail travel across Kenya.</p>
+            
+            <form method="POST" class="search-engine">
+                {% csrf_token %}
+                
+                <div class="search-segment">
+                    <label class="segment-label">From</label>
+                    <select id="src" name="source" class="segment-input" required>
+                        <option value="" disabled selected>Select Origin</option>
+                        {% for city in cities %}<option value="{{ city }}">{{ city }}</option>{% endfor %}
+                    </select>
+                    <div class="swap-icon" onclick="swap()"><i class="fas fa-exchange-alt"></i></div>
+                </div>
+
+                <div class="search-segment" style="padding-left: 35px;">
+                    <label class="segment-label">To</label>
+                    <select id="dest" name="destination" class="segment-input" required>
+                        <option value="" disabled selected>Select Dest</option>
+                        {% for city in cities %}<option value="{{ city }}">{{ city }}</option>{% endfor %}
+                    </select>
+                </div>
+
+                <div class="search-segment">
+                    <label class="segment-label">Date</label>
+                    <input type="date" name="date" class="segment-input" required>
+                </div>
+
+                <button type="submit" class="search-btn"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <div class="results-area">
+        {% if trains %}
+            {% for train in trains %}
+            <div class="ticket-card">
+                <div class="ticket-left">
+                    <div class="time-row">
+                        <span>{% if train.dept_time %}{{ train.dept_time|time:"H:i" }}{% else %}--:--{% endif %}</span>
+                        <span style="height: 2px; width: 30px; background: #cbd5e1;"></span>
+                        <span>{% if train.arr_time %}{{ train.arr_time|time:"H:i" }}{% else %}--:--{% endif %}</span>
+                    </div>
+                    <div class="route-row">
+                        <i class="fas fa-train"></i> 
+                        {{ train.train_name }} • 
+                        {% if request.POST.source %}{{ request.POST.source }}{% else %}{{ train.get_real_source }}{% endif %}
+                        to 
+                        {% if request.POST.destination %}{{ request.POST.destination }}{% else %}{{ train.get_real_destination }}{% endif %}
+                    </div>
+                </div>
+                <div class="ticket-right">
+                    <div class="price-tag">{% if train.display_price %}KES {{ train.display_price }}{% else %}KES {{ train.fare_per_seat }}{% endif %}</div>
+                    <div class="seat-tag">{{ train.available_seats }} seats left</div>
+                    <a href="{% url 'select_seats' train.id %}?src={{ request.POST.source|default:train.get_real_source }}&dest={{ request.POST.destination|default:train.get_real_destination }}" class="book-btn">Select Seat</a>
+                </div>
+            </div>
+            {% endfor %}
+        {% endif %}
+    </div>
+
+    <div class="footer">
+        <h3>ONNLY-RAILWAYS</h3>
+        <p>&copy; 2026. All rights reserved.</p>
+    </div>
+
+    <script>
+        function swap() {
+            const s = document.getElementById('src');
+            const d = document.getElementById('dest');
+            const t = s.value; s.value = d.value; d.value = t;
+        }
+    </script>
+</body>
+</html>

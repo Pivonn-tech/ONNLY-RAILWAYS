@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>E-Ticket | {{ passenger.name }}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f1f5f9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .ticket-container {
+            background: white;
+            width: 100%;
+            max-width: 380px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top Section: Branding */
+        .header {
+            background: #0f172a; /* Dark Navy */
+            color: white;
+            padding: 30px 25px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+        }
+        .header h2 { margin: 0; font-size: 1.4rem; letter-spacing: -0.5px; font-weight: 800; }
+        .header h2 span { color: #d97706; } /* Gold accent */
+        .header p { margin: 5px 0 0; opacity: 0.6; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* The "Tear" effect circles */
+        .tear-line {
+            height: 20px; background: #0f172a; position: relative;
+        }
+        .tear-line::after {
+            content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 20px;
+            background: white; border-radius: 20px 20px 0 0;
+        }
+
+        /* Main Content */
+        .content { padding: 20px 30px 40px; text-align: center; }
+
+        /* Route */
+        .route-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 30px; border-bottom: 2px dashed #e2e8f0; padding-bottom: 25px;
+        }
+        .station-code { font-size: 2rem; font-weight: 800; color: #0f172a; line-height: 1; }
+        .station-name { font-size: 0.75rem; color: #64748b; font-weight: 600; margin-top: 5px; text-transform: uppercase; }
+        .plane-icon { color: #d97706; font-size: 1.2rem; transform: rotate(45deg); }
+
+        /* Info Grid */
+        .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; text-align: left; margin-bottom: 30px; }
+        .label { font-size: 0.7rem; color: #94a3b8; text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+        .value { font-size: 1rem; font-weight: 700; color: #334155; }
+
+        /* SEAT HIGHLIGHT */
+        .seat-box {
+            background: #eff6ff; border: 2px solid #2563eb; color: #2563eb;
+            padding: 15px; border-radius: 16px; margin-bottom: 25px;
+        }
+        .seat-title { font-size: 0.75rem; text-transform: uppercase; font-weight: 700; opacity: 0.8; }
+        .seat-num { font-size: 2.5rem; font-weight: 900; line-height: 1; margin-top: 5px; }
+
+        /* QR Code */
+        .qr-box { 
+            background: white; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; 
+            display: inline-block; 
+        }
+        .qr-img { width: 120px; height: 120px; mix-blend-mode: multiply; }
+
+        /* Action Buttons */
+        .actions {
+            padding: 20px; background: #f8fafc; border-top: 1px solid #e2e8f0;
+            display: flex; gap: 10px;
+        }
+        .btn {
+            flex: 1; text-decoration: none; padding: 12px; border-radius: 12px;
+            font-size: 0.9rem; font-weight: 600; text-align: center; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary { background: #0f172a; color: white; }
+        .btn-outline { background: white; border: 1px solid #cbd5e1; color: #475569; }
+        .btn:hover { transform: translateY(-2px); }
+
+        @media print {
+            body { background: white; padding: 0; }
+            .ticket-container { box-shadow: none; border: 2px solid #000; }
+            .actions { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ticket-container">
+        <div class="header">
+            <h2>ONNLY<span>RAILWAYS</span></h2>
+            <p>Boarding Pass</p>
+        </div>
+        <div class="tear-line"></div>
+
+        <div class="content">
+            <div class="route-row">
+                <div style="text-align: left;">
+                    <div class="station-code">{{ passenger.source|slice:":3"|upper }}</div>
+                    <div class="station-name">{{ passenger.source }}</div>
+                </div>
+                <i class="fas fa-train plane-icon"></i> <div style="text-align: right;">
+                    <div class="station-code">{{ passenger.destination|slice:":3"|upper }}</div>
+                    <div class="station-name">{{ passenger.destination }}</div>
+                </div>
+            </div>
+
+            <div class="info-grid">
+                <div>
+                    <div class="label">Passenger</div>
+                    <div class="value">{{ passenger.name|truncatechars:15 }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="label">Date</div>
+                    <div class="value">{{ passenger.date_of_journey|date:"d M Y" }}</div>
+                </div>
+                <div>
+                    <div class="label">Train No</div>
+                    <div class="value">{{ passenger.train.train_number }}</div>
+                </div>
+                <div style="text-align: right;">
+                    <div class="label">Class</div>
+                    <div class="value">
+                        {% if 'E' in passenger.seat_number %}First{% else %}Economy{% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="seat-box">
+                <div class="seat-title">Assigned Seat</div>
+                <div class="seat-num">{{ passenger.seat_number }}</div>
+            </div>
+
+            <div class="qr-box">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=ONNLY-TICKET|{{ passenger.id }}|{{ passenger.seat_number }}|{{ passenger.name }}" 
+                     class="qr-img" alt="QR">
+            </div>
+            <div style="margin-top: 10px; font-size: 0.7rem; color: #94a3b8;">
+                Ref: #829{{ passenger.id }}
+            </div>
+        </div>
+
+        <div class="actions">
+            <a href="javascript:window.print()" class="btn btn-outline">
+                <i class="fas fa-download"></i> Save
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                <i class="fas fa-check"></i> Finish
+            </a>
+        </div>
+    </div>
+
+</body>
+</html>
